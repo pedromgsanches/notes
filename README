@@ -1,0 +1,16 @@
+.
+├── docker-compose.yml
+├── app/
+│   ├── __init__.py
+│   ├── main.py
+│   ├── database.py
+│   ├── auth.py
+│   ├── templates/
+│   │   ├── base.html
+│   │   ├── login.html
+│   │   ├── notes.html
+│   │   └── settings.html
+│   └── static/
+│       └── css/
+│           └── style.css
+└── Dockerfile

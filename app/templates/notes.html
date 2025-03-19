@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="columns">
+    <div class="column is-one-third">
+        <div class="box">
+            <div class="field">
+                <div class="control has-icons-left">
+                    <form method="get" action="{{ url_for('notes') }}">
+                        <input class="input" type="text" name="search" placeholder="Pesquisar notas..." value="{{ search_query }}">
+                        <span class="icon is-left">
+                            <i class="fas fa-search"></i>
+                        </span>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="is-flex is-justify-content-space-between is-align-items-center mb-3">
+                <h2 class="title is-5 mb-0">Minhas Notas</h2>
+                <button id="new-note-btn" class="button is-small is-primary">
+                    <span class="icon">
+                        <i class="fas fa-plus"></i>
+                    </span>
+                    <span>Novo</span>
+                </button>
+            </div>
+            
+            <div class="notes-list" style="max-height: 70vh; overflow-y: auto;">
+                {% if notes %}
+                    {% for note in notes %}
+                        <div class="note-item box mb-2 p-3" data-id="{{ note[0] }}">
+                            <h3 class="is-size-6 has-text-weight-bold">{{ note[1] }}</h3>
+                            <p class="content-preview">{{ note[2]|truncate(50) }}</p>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="has-text-grey-light has-text-centered p-4">
+                        {% if search_query %}
+                            Nenhum resultado para "{{ search_query }}"
+                        {% else %}
+                            Sem notas. Crie uma nova nota!
+                        {% endif %}
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="column is-two-thirds">
+        <div class="box">
+            <div class="is-flex is-justify-content-space-between mb-3">
+                <h2 class="title is-5 mb-0">Editor de Notas</h2>
+                <div class="buttons">
+                    <button id="save-btn" class="button is-success">
+                        <span class="icon">
+                            <i class="fas fa-save"></i>
+                        </span>
+                        <span>Guardar</span>
+                    </button>
+                    <button id="delete-btn" class="button is-danger is-hidden-mobile">
+                        <span class="icon">
+                            <i class="fas fa-trash"></i>
+                        </span>
+                        <span>Eliminar</span>
+                    </button>
+                </div>
+            </div>
+            
+            <form id="note-form">
+                <input type="hidden" id="note-id" name="note-id">
+                <div class="field">
+                    <div class="control">
+                        <input class="input is-medium" type="text" id="note-title" name="title" placeholder="Título da nota" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="control">
+                        <textarea class="textarea" id="note-content" name="content" placeholder="Conteúdo da nota" rows="15"></textarea>
+                    </div>
+                </div>
+            </form>
+            
+            <div class="is-hidden-tablet has-text-centered mt-3">
+                <button id="mobile-delete-btn" class="button is-danger is-fullwidth">
+                    <span class="icon">
+                        <i class="fas fa-trash"></i>
+                    </span>
+                    <span>Eliminar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const noteForm = document.getElementById('note-form');
+        const noteId = document.getElementById('note-id');
+        const noteTitle = document.getElementById('note-title');
+        const noteContent = document.getElementById('note-content');
+        const saveBtn = document.getElementById('save-btn');
+        const deleteBtn = document.getElementById('delete-btn');
+        const mobileDeleteBtn = document.getElementById('mobile-delete-btn');
+        const newNoteBtn = document.getElementById('new-note-btn');
+        const noteItems = document.querySelectorAll('.note-item');
+        
+        function clearEditor() {
+            noteId.value = '';
+            noteTitle.value = '';
+            noteContent.value = '';
+            deleteBtn.classList.add('is-hidden');
+            mobileDeleteBtn.classList.add('is-hidden');
+        }
+        
+        function loadNote(id) {
+            fetch(`/notes/${id}`)
+                .then(response => response.json())
+                .then(note => {
+                    noteId.value = note.id;
+                    noteTitle.value = note.title;
+                    noteContent.value = note.content;
+                    deleteBtn.classList.remove('is-hidden');
+                    mobileDeleteBtn.classList.remove('is-hidden');
+                })
+                .catch(error => console.error('Erro ao carregar nota:', error));
+        }
+        
+        newNoteBtn.addEventListener('click', clearEditor);
+        
+        noteItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                loadNote(id);
+                
+                // Para dispositivos móveis, rolar para o editor
+                if (window.innerWidth < 768) {
+                    document.querySelector('.column.is-two-thirds').scrollIntoView({ 
+                        behavior: 'smooth' 
+                    });
+                }
+            });
+        });
+        
+        saveBtn.addEventListener('click', function() {
+            const id = noteId.value;
+            
+            if (id) {
+                // Atualizar nota existente
+                const form = document.createElement('form');
+                form.method = 'post';
+                form.action = `/notes/${id}/update`;
+                form.style.display = 'none';
+                
+                const titleField = document.createElement('input');
+                titleField.name = 'title';
+                titleField.value = noteTitle.value;
+                
+                const contentField = document.createElement('input');
+                contentField.name = 'content';
+                contentField.value = noteContent.value;
+                
+                form.appendChild(titleField);
+                form.appendChild(contentField);
+                document.body.appendChild(form);
+                form.submit();
+            } else {
+                // Criar nova nota
+                const form = document.createElement('form');
+                form.method = 'post';
+                form.action = '/notes/new';
+                form.style.display = 'none';
+                
+                const titleField = document.createElement('input');
+                titleField.name = 'title';
+                titleField.value = noteTitle.value;
+                
+                const contentField = document.createElement('input');
+                contentField.name = 'content';
+                contentField.value = noteContent.value;
+                
+                form.appendChild(titleField);
+                form.appendChild(contentField);
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+        
+        function handleDelete() {
+            const id = noteId.value;
+            if (id && confirm('Tem certeza que deseja excluir esta nota?')) {
+                const form = document.createElement('form');
+                form.method = 'post';
+                form.action = `/notes/${id}/delete`;
+                form.style.display = 'none';
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+        
+        deleteBtn.addEventListener('click', handleDelete);
+        mobileDeleteBtn.addEventListener('click', handleDelete);
+        
+        // Inicialmente, esconder o botão de excluir
+        deleteBtn.classList.add('is-hidden');
+        mobileDeleteBtn.classList.add('is-hidden');
+        
+        // Auto-submit para a pesquisa quando o texto muda
+        const searchInput = document.querySelector('input[name="search"]');
+        let typingTimer;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(() => {
+                this.form.submit();
+            }, 500);
+        });
+    });
+</script>
+{% endblock %}

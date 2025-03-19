@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="columns is-centered">
+    <div class="column is-half-tablet is-one-third-desktop">
+        <div class="box">
+            <h2 class="title is-4 has-text-centered">Definições</h2>
+            
+            <form method="post" action="{{ url_for('settings') }}">
+                <div class="field">
+                    <label class="label" for="current_password">Senha atual</label>
+                    <div class="control has-icons-left">
+                        <input class="input" type="password" id="current_password" name="current_password" required>
+                        <span class="icon is-small is-left">
+                            <i class="fas fa-lock"></i>
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="field">
+                    <label class="label" for="new_password">Nova senha</label>
+                    <div class="control has-icons-left">
+                        <input class="input" type="password" id="new_password" name="new_password" required>
+                        <span class="icon is-small is-left">
+                            <i class="fas fa-key"></i>
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="field">
+                    <div class="control">
+                        <button type="submit" class="button is-primary is-fullwidth">
+                            Alterar senha
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
