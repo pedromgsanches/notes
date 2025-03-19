@@ -131,35 +131,55 @@
         </div>
     </section>
 
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // Existing code...
-        
-        // Dark mode toggle
-        const darkModeToggle = document.getElementById('dark-mode-toggle');
-        if (darkModeToggle) {
-            darkModeToggle.addEventListener('click', function() {
-                document.body.classList.toggle('dark-mode');
-                const isDark = document.body.classList.contains('dark-mode');
-                localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
-                
-                // Update icon
-                const darkModeIcon = document.getElementById('dark-mode-icon');
-                darkModeIcon.classList.toggle('fa-moon');
-                darkModeIcon.classList.toggle('fa-sun');
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Navbar burger functionality
+            const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+            if ($navbarBurgers.length > 0) {
+                $navbarBurgers.forEach(el => {
+                    el.addEventListener('click', () => {
+                        const target = el.dataset.target;
+                        const $target = document.getElementById(target);
+                        el.classList.toggle('is-active');
+                        $target.classList.toggle('is-active');
+                    });
+                });
+            }
+            
+            // Close notifications
+            const $deleteButtons = Array.prototype.slice.call(document.querySelectorAll('.notification .delete'), 0);
+            $deleteButtons.forEach($delete => {
+                const $notification = $delete.parentNode;
+                $delete.addEventListener('click', () => {
+                    $notification.parentNode.removeChild($notification);
+                });
             });
             
-            // Initialize dark mode based on localStorage
-            const darkMode = localStorage.getItem('darkMode') === 'enabled';
-            if (darkMode) {
-                document.body.classList.add('dark-mode');
-                const darkModeIcon = document.getElementById('dark-mode-icon');
-                darkModeIcon.classList.remove('fa-moon');
-                darkModeIcon.classList.add('fa-sun');
+            // Dark mode toggle
+            const darkModeToggle = document.getElementById('dark-mode-toggle');
+            if (darkModeToggle) {
+                darkModeToggle.addEventListener('click', function() {
+                    document.body.classList.toggle('dark-mode');
+                    const isDark = document.body.classList.contains('dark-mode');
+                    localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
+                    
+                    // Update icon
+                    const darkModeIcon = document.getElementById('dark-mode-icon');
+                    darkModeIcon.classList.toggle('fa-moon');
+                    darkModeIcon.classList.toggle('fa-sun');
+                });
+                
+                // Initialize dark mode based on localStorage
+                const darkMode = localStorage.getItem('darkMode') === 'enabled';
+                if (darkMode) {
+                    document.body.classList.add('dark-mode');
+                    const darkModeIcon = document.getElementById('dark-mode-icon');
+                    darkModeIcon.classList.remove('fa-moon');
+                    darkModeIcon.classList.add('fa-sun');
+                }
             }
-        }
-    });
-</script>
+        });
+    </script>
     
 </body>
 </html>
