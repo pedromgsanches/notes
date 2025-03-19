@@ -95,7 +95,7 @@ def get_note(note_id):
     
     if note:
         return {'id': note[0], 'title': note[1], 'content': note[2]}
-    return {'error': 'Nota não encontrada'}, 404
+    return {'error': 'Not found'}, 404
 
 @app.route('/notes/<int:note_id>/update', methods=['POST'])
 @login_required
@@ -129,9 +129,9 @@ def settings():
         new_password = request.form.get('new_password')
         
         if User.change_password(current_user.id, current_password, new_password):
-            flash('Senha alterada com sucesso')
+            flash('Password changed')
         else:
-            flash('Senha atual incorreta')
+            flash('Current password is wrong')
     
     return render_template('settings.html')
 

@@ -7,7 +7,7 @@
             <div class="field">
                 <div class="control has-icons-left">
                     <form method="get" action="{{ url_for('notes') }}">
-                        <input class="input" type="text" name="search" placeholder="Pesquisar notas..." value="{{ search_query }}">
+                        <input class="input" type="text" name="search" placeholder="Search..." value="{{ search_query }}">
                         <span class="icon is-left">
                             <i class="fas fa-search"></i>
                         </span>
@@ -16,12 +16,12 @@
             </div>
             
             <div class="is-flex is-justify-content-space-between is-align-items-center mb-3">
-                <h2 class="title is-5 mb-0">Minhas Notas</h2>
+                <h2 class="title is-5 mb-0">Notes</h2>
                 <button id="new-note-btn" class="button is-small is-primary">
                     <span class="icon">
                         <i class="fas fa-plus"></i>
                     </span>
-                    <span>Novo</span>
+                    <span>New</span>
                 </button>
             </div>
             
@@ -36,9 +36,9 @@
                 {% else %}
                     <p class="has-text-grey-light has-text-centered p-4">
                         {% if search_query %}
-                            Nenhum resultado para "{{ search_query }}"
+                            No results for "{{ search_query }}"
                         {% else %}
-                            Sem notas. Crie uma nova nota!
+                            Zero Contents! Create some notes
                         {% endif %}
                     </p>
                 {% endif %}
@@ -49,19 +49,19 @@
     <div class="column is-two-thirds">
         <div class="box">
             <div class="is-flex is-justify-content-space-between mb-3">
-                <h2 class="title is-5 mb-0">Editor de Notas</h2>
+                <h2 class="title is-5 mb-0">Editor</h2>
                 <div class="buttons">
                     <button id="save-btn" class="button is-success">
                         <span class="icon">
                             <i class="fas fa-save"></i>
                         </span>
-                        <span>Guardar</span>
+                        <span>Save</span>
                     </button>
                     <button id="delete-btn" class="button is-danger is-hidden-mobile">
                         <span class="icon">
                             <i class="fas fa-trash"></i>
                         </span>
-                        <span>Eliminar</span>
+                        <span>Delete</span>
                     </button>
                 </div>
             </div>
@@ -70,12 +70,12 @@
                 <input type="hidden" id="note-id" name="note-id">
                 <div class="field">
                     <div class="control">
-                        <input class="input is-medium" type="text" id="note-title" name="title" placeholder="Título da nota" required>
+                        <input class="input is-medium" type="text" id="note-title" name="title" placeholder="Note Title" required>
                     </div>
                 </div>
                 <div class="field">
                     <div class="control">
-                        <textarea class="textarea" id="note-content" name="content" placeholder="Conteúdo da nota" rows="15"></textarea>
+                        <textarea class="textarea" id="note-content" name="content" placeholder="Note Contents" rows="15"></textarea>
                     </div>
                 </div>
             </form>
@@ -85,7 +85,7 @@
                     <span class="icon">
                         <i class="fas fa-trash"></i>
                     </span>
-                    <span>Eliminar</span>
+                    <span>Delete</span>
                 </button>
             </div>
         </div>
@@ -122,7 +122,7 @@
                     deleteBtn.classList.remove('is-hidden');
                     mobileDeleteBtn.classList.remove('is-hidden');
                 })
-                .catch(error => console.error('Erro ao carregar nota:', error));
+                .catch(error => console.error('Error loading data:', error));
         }
         
         // Find this in the script section of notes.html and update it
@@ -193,7 +193,7 @@
         
         function handleDelete() {
             const id = noteId.value;
-            if (id && confirm('Tem certeza que deseja excluir esta nota?')) {
+            if (id && confirm('Sure to remove?')) {
                 const form = document.createElement('form');
                 form.method = 'post';
                 form.action = `/notes/${id}/delete`;

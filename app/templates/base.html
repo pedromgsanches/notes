@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aplicação de Notas</title>
+    <title>Notes</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
@@ -76,7 +76,7 @@
     {% if current_user.is_authenticated %}
     <nav class="navbar is-primary is-fixed-top" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
-            <h1 class="navbar-item is-size-4">Minhas Notas</h1>
+            <h1 class="navbar-item is-size-4">Notes</h1>
             
             <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navMenu">
                 <span aria-hidden="true"></span>
@@ -89,11 +89,11 @@
             <div class="navbar-start">
                 <a href="{{ url_for('notes') }}" class="navbar-item">
                     <span class="icon"><i class="fas fa-sticky-note"></i></span>
-                    <span>Minhas Notas</span>
+                    <span>My Notes</span>
                 </a>
                 <a href="{{ url_for('settings') }}" class="navbar-item">
                     <span class="icon"><i class="fas fa-cog"></i></span>
-                    <span>Definições</span>
+                    <span>Settings</span>
                 </a>
             </div>
             

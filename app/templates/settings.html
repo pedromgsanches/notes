@@ -4,11 +4,11 @@
 <div class="columns is-centered">
     <div class="column is-half-tablet is-one-third-desktop">
         <div class="box">
-            <h2 class="title is-4 has-text-centered">Definições</h2>
+            <h2 class="title is-4 has-text-centered">Settings</h2>
             
             <form method="post" action="{{ url_for('settings') }}">
                 <div class="field">
-                    <label class="label" for="current_password">Senha atual</label>
+                    <label class="label" for="current_password">Current password</label>
                     <div class="control has-icons-left">
                         <input class="input" type="password" id="current_password" name="current_password" required>
                         <span class="icon is-small is-left">
@@ -18,7 +18,7 @@
                 </div>
                 
                 <div class="field">
-                    <label class="label" for="new_password">Nova senha</label>
+                    <label class="label" for="new_password">New password</label>
                     <div class="control has-icons-left">
                         <input class="input" type="password" id="new_password" name="new_password" required>
                         <span class="icon is-small is-left">
@@ -30,7 +30,7 @@
                 <div class="field">
                     <div class="control">
                         <button type="submit" class="button is-primary is-fullwidth">
-                            Alterar senha
+                            Change password
                         </button>
                     </div>
                 </div>
