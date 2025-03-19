@@ -7,21 +7,74 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
-        .note-item {
-            cursor: pointer;
-        }
-        .note-item:hover {
-            background-color: #f5f5f5;
-        }
-        .content-preview {
-            color: #666;
-            font-size: 0.9rem;
-        }
-    </style>
+    .note-item {
+        cursor: pointer;
+    }
+    .note-item:hover {
+        background-color: #f5f5f5;
+    }
+    .content-preview {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    /* Fixed navbar */
+    .navbar.is-fixed-top {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 30;
+    }
+    
+    body {
+        padding-top: 3.25rem;
+    }
+    
+    /* Dark mode styles */
+    body.dark-mode {
+        background-color: #121212;
+        color: #e0e0e0;
+    }
+    
+    body.dark-mode .navbar.is-primary {
+        background-color: #2b2b2b !important;
+    }
+    
+    body.dark-mode .box {
+        background-color: #2b2b2b;
+        color: #e0e0e0;
+    }
+    
+    body.dark-mode .note-item:hover {
+        background-color: #3b3b3b;
+    }
+    
+    body.dark-mode .input, 
+    body.dark-mode .textarea {
+        background-color: #3b3b3b;
+        color: #e0e0e0;
+        border-color: #555;
+    }
+    
+    body.dark-mode .title,
+    body.dark-mode .label {
+        color: #e0e0e0;
+    }
+    
+    body.dark-mode .button.is-light {
+        background-color: #3b3b3b;
+        color: #e0e0e0;
+    }
+    
+    body.dark-mode .content-preview {
+        color: #aaa;
+    }
+</style>
 </head>
 <body>
     {% if current_user.is_authenticated %}
-    <nav class="navbar is-primary" role="navigation" aria-label="main navigation">
+    <nav class="navbar is-primary is-fixed-top" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
             <h1 class="navbar-item is-size-4">Minhas Notas</h1>
             
@@ -46,6 +99,11 @@
             
             <div class="navbar-end">
                 <div class="navbar-item">
+                    <button id="dark-mode-toggle" class="button is-light mr-2">
+                        <span class="icon">
+                            <i id="dark-mode-icon" class="fas fa-moon"></i>
+                        </span>
+                    </button>
                     <a href="{{ url_for('logout') }}" class="button is-light">
                         <span class="icon"><i class="fas fa-sign-out-alt"></i></span>
                         <span>Logout</span>
@@ -73,30 +131,35 @@
         </div>
     </section>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Funções para navbar mobile
-            const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
-            if ($navbarBurgers.length > 0) {
-                $navbarBurgers.forEach(el => {
-                    el.addEventListener('click', () => {
-                        const target = el.dataset.target;
-                        const $target = document.getElementById(target);
-                        el.classList.toggle('is-active');
-                        $target.classList.toggle('is-active');
-                    });
-                });
-            }
-            
-            // Fechar notificações
-            const $deleteButtons = Array.prototype.slice.call(document.querySelectorAll('.notification .delete'), 0);
-            $deleteButtons.forEach($delete => {
-                const $notification = $delete.parentNode;
-                $delete.addEventListener('click', () => {
-                    $notification.parentNode.removeChild($notification);
-                });
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Existing code...
+        
+        // Dark mode toggle
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        if (darkModeToggle) {
+            darkModeToggle.addEventListener('click', function() {
+                document.body.classList.toggle('dark-mode');
+                const isDark = document.body.classList.contains('dark-mode');
+                localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
+                
+                // Update icon
+                const darkModeIcon = document.getElementById('dark-mode-icon');
+                darkModeIcon.classList.toggle('fa-moon');
+                darkModeIcon.classList.toggle('fa-sun');
             });
-        });
-    </script>
+            
+            // Initialize dark mode based on localStorage
+            const darkMode = localStorage.getItem('darkMode') === 'enabled';
+            if (darkMode) {
+                document.body.classList.add('dark-mode');
+                const darkModeIcon = document.getElementById('dark-mode-icon');
+                darkModeIcon.classList.remove('fa-moon');
+                darkModeIcon.classList.add('fa-sun');
+            }
+        }
+    });
+</script>
+    
 </body>
 </html>
