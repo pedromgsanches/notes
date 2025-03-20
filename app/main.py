@@ -8,7 +8,7 @@ from app.auth import User
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
-# Configurar o gerenciador de login
+# Configure login manager
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
@@ -17,7 +17,7 @@ login_manager.login_view = 'login'
 def load_user(user_id):
     return User.get(user_id)
 
-# Inicializar o banco de dados
+# Initialize database
 with app.app_context():
     init_db()
 
@@ -41,7 +41,7 @@ def login():
             login_user(user)
             return redirect(url_for('notes'))
         else:
-            flash('Credenciais inválidas')
+            flash('Invalid credentials')
     
     return render_template('login.html')
 
@@ -59,7 +59,7 @@ def notes():
     cursor = db.cursor()
     
     if search_query:
-        # Implementação simples de full-text search
+        # Simple full-text search implementation
         cursor.execute('''
             SELECT id, title, content FROM notes 
             WHERE user_id = ? AND (title LIKE ? OR content LIKE ?)
@@ -120,6 +120,98 @@ def delete_note(note_id):
     db.commit()
     
     return redirect(url_for('notes'))
+
+# Todo Routes
+@app.route('/todos')
+@login_required
+def todos():
+    search_query = request.args.get('search', '')
+    db = get_db()
+    cursor = db.cursor()
+    
+    if search_query:
+        cursor.execute('''
+            SELECT id, title, completed, priority, due_date FROM todos 
+            WHERE user_id = ? AND title LIKE ?
+        ''', (current_user.id, f'%{search_query}%'))
+    else:
+        cursor.execute('''
+            SELECT id, title, completed, priority, due_date FROM todos 
+            WHERE user_id = ? 
+            ORDER BY completed, priority DESC, due_date
+        ''', (current_user.id,))
+    
+    todos = cursor.fetchall()
+    return render_template('todo.html', todos=todos, search_query=search_query)
+
+@app.route('/todos/new', methods=['POST'])
+@login_required
+def new_todo():
+    title = request.form.get('title', '')
+    priority = request.form.get('priority', 0)
+    due_date = request.form.get('due_date', '')
+    completed = request.form.get('completed', 0)
+    
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('''
+        INSERT INTO todos (user_id, title, priority, due_date, completed) 
+        VALUES (?, ?, ?, ?, ?)
+    ''', (current_user.id, title, priority, due_date if due_date else None, completed))
+    db.commit()
+    
+    return redirect(url_for('todos'))
+
+@app.route('/todos/<int:todo_id>', methods=['GET'])
+@login_required
+def get_todo(todo_id):
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('''
+        SELECT id, title, priority, due_date, completed 
+        FROM todos 
+        WHERE id = ? AND user_id = ?
+    ''', (todo_id, current_user.id))
+    todo = cursor.fetchone()
+    
+    if todo:
+        return {
+            'id': todo[0],
+            'title': todo[1],
+            'priority': todo[2],
+            'due_date': todo[3],
+            'completed': todo[4]
+        }
+    return {'error': 'Not found'}, 404
+
+@app.route('/todos/<int:todo_id>/update', methods=['POST'])
+@login_required
+def update_todo(todo_id):
+    title = request.form.get('title', '')
+    priority = request.form.get('priority', 0)
+    due_date = request.form.get('due_date', '')
+    completed = request.form.get('completed', 0)
+    
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('''
+        UPDATE todos 
+        SET title = ?, priority = ?, due_date = ?, completed = ? 
+        WHERE id = ? AND user_id = ?
+    ''', (title, priority, due_date if due_date else None, completed, todo_id, current_user.id))
+    db.commit()
+    
+    return redirect(url_for('todos'))
+
+@app.route('/todos/<int:todo_id>/delete', methods=['POST'])
+@login_required
+def delete_todo(todo_id):
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('DELETE FROM todos WHERE id = ? AND user_id = ?', (todo_id, current_user.id))
+    db.commit()
+    
+    return redirect(url_for('todos'))
 
 @app.route('/settings', methods=['GET', 'POST'])
 @login_required

@@ -7,10 +7,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
-    .note-item {
+    .note-item, .todo-item {
         cursor: pointer;
     }
-    .note-item:hover {
+    .note-item:hover, .todo-item:hover {
         background-color: #f5f5f5;
     }
     .content-preview {
@@ -46,12 +46,13 @@
         color: #e0e0e0;
     }
     
-    body.dark-mode .note-item:hover {
+    body.dark-mode .note-item:hover, body.dark-mode .todo-item:hover {
         background-color: #3b3b3b;
     }
     
     body.dark-mode .input, 
-    body.dark-mode .textarea {
+    body.dark-mode .textarea, 
+    body.dark-mode .select select {
         background-color: #3b3b3b;
         color: #e0e0e0;
         border-color: #555;
@@ -69,6 +70,10 @@
     
     body.dark-mode .content-preview {
         color: #aaa;
+    }
+    
+    body.dark-mode .has-text-line-through {
+        text-decoration: line-through;
     }
 </style>
 </head>
@@ -89,7 +94,11 @@
             <div class="navbar-start">
                 <a href="{{ url_for('notes') }}" class="navbar-item">
                     <span class="icon"><i class="fas fa-sticky-note"></i></span>
-                    <span>My Notes</span>
+                    <span>Notes</span>
+                </a>
+                <a href="{{ url_for('todos') }}" class="navbar-item">
+                    <span class="icon"><i class="fas fa-tasks"></i></span>
+                    <span>ToDo</span>
                 </a>
                 <a href="{{ url_for('settings') }}" class="navbar-item">
                     <span class="icon"><i class="fas fa-cog"></i></span>

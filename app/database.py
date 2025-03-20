@@ -20,7 +20,7 @@ def init_db():
     db = get_db()
     cursor = db.cursor()
     
-    # Criar tabela de usuários
+    # Create users table
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -29,7 +29,7 @@ def init_db():
     )
     ''')
     
-    # Criar tabela de notas
+    # Create notes table
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS notes (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -40,10 +40,23 @@ def init_db():
     )
     ''')
     
-    # Verificar se o usuário admin já existe
+    # Create todos table
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS todos (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        title TEXT NOT NULL,
+        completed INTEGER DEFAULT 0,
+        priority INTEGER DEFAULT 0,
+        due_date TEXT,
+        FOREIGN KEY (user_id) REFERENCES users (id)
+    )
+    ''')
+    
+    # Check if admin user exists
     cursor.execute('SELECT * FROM users WHERE username = ?', ('admin',))
     if cursor.fetchone() is None:
-        # Criar usuário admin padrão
+        # Create default admin user
         cursor.execute('INSERT INTO users (username, password) VALUES (?, ?)', ('admin', 'admin'))
     
     db.commit()
