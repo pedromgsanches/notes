@@ -192,38 +192,3 @@ main {
         grid-template-columns: 1fr;
     }
 }
-
-/* Add this to app/static/css/style.css */
-
-.todo-item {
-    border-left: 3px solid #3273dc;
-    transition: all 0.3s ease;
-  }
-  
-  .todo-item.done {
-    border-left: 3px solid #48c774;
-    opacity: 0.7;
-  }
-  
-  .has-text-line-through {
-    text-decoration: line-through;
-  }
-  
-  .task-text {
-    flex-grow: 1;
-  }
-  
-  #todo-panel {
-    max-height: 70vh;
-    overflow-y: auto;
-  }
-  
-  /* Dark mode styles */
-  body.dark-mode .todo-item {
-    background-color: #3b3b3b;
-    color: #e0e0e0;
-  }
-  
-  body.dark-mode .todo-item.done {
-    background-color: #2b2b2b;
-  }
