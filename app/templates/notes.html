@@ -88,11 +88,138 @@
                     <span>Delete</span>
                 </button>
             </div>
+
+            <!-- Add this to app/templates/notes.html right after the box div in the editor column -->
+
+<div class="box">
+    <div class="is-flex is-justify-content-space-between mb-3">
+      <h2 class="title is-5 mb-0">Editor</h2>
+      <div class="buttons">
+        <button id="todo-mode-btn" class="button is-info">
+          <span class="icon">
+            <i class="fas fa-tasks"></i>
+          </span>
+          <span>TODO Mode</span>
+        </button>
+        <button id="save-btn" class="button is-success">
+          <span class="icon">
+            <i class="fas fa-save"></i>
+          </span>
+          <span>Save</span>
+        </button>
+        <button id="delete-btn" class="button is-danger is-hidden-mobile">
+          <span class="icon">
+            <i class="fas fa-trash"></i>
+          </span>
+          <span>Delete</span>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Editor View -->
+    <div id="editor-view">
+      <form id="note-form">
+        <input type="hidden" id="note-id" name="note-id">
+        <div class="field">
+          <div class="control">
+            <input class="input is-medium" type="text" id="note-title" name="title" placeholder="Note Title" required>
+          </div>
+        </div>
+        <div class="field">
+          <div class="control">
+            <textarea class="textarea" id="note-content" name="content" placeholder="Note Contents" rows="15"></textarea>
+          </div>
+        </div>
+      </form>
+    </div>
+    
+    <!-- TODO View -->
+    <div id="todo-view" class="is-hidden">
+      <div class="is-flex is-justify-content-space-between mb-3">
+        <h3 class="subtitle is-6 mb-0">Task List</h3>
+        <div class="buttons">
+          <button id="editor-mode-btn" class="button is-small is-light">
+            <span class="icon">
+              <i class="fas fa-edit"></i>
+            </span>
+            <span>Switch to Editor</span>
+          </button>
+          <button id="convert-btn" class="button is-small is-light">
+            <span class="icon">
+              <i class="fas fa-list"></i>
+            </span>
+            <span>Convert Lines to TODOs</span>
+          </button>
+        </div>
+      </div>
+      
+      <div id="todo-panel"></div>
+    </div>
+    
+    <div class="is-hidden-tablet has-text-centered mt-3">
+      <button id="mobile-delete-btn" class="button is-danger is-fullwidth">
+        <span class="icon">
+          <i class="fas fa-trash"></i>
+        </span>
+        <span>Delete</span>
+      </button>
+    </div>
+  </div>
+
         </div>
     </div>
 </div>
 
 <script>
+
+  // Add this to the DOMContentLoaded event handler in notes.html
+
+const todoModeBtn = document.getElementById('todo-mode-btn');
+const editorModeBtn = document.getElementById('editor-mode-btn');
+const convertBtn = document.getElementById('convert-btn');
+
+// Toggle TODO mode
+todoModeBtn.addEventListener('click', function() {
+  renderTodoList();
+});
+
+// Toggle back to editor mode
+editorModeBtn.addEventListener('click', function() {
+  switchToEditor();
+});
+
+// Convert lines to TODOs
+convertBtn.addEventListener('click', function() {
+  convertToTodos();
+});
+
+// Check if the note content has TODOs when loading a note
+const checkForTodos = () => {
+  const content = noteContent.value;
+  if (content.includes('[TODO:')) {
+    // Automatically switch to TODO mode
+    renderTodoList();
+  } else {
+    // Switch to editor mode
+    switchToEditor();
+  }
+};
+
+// Add this to the end of the loadNote function
+loadNote = (id) => {
+  fetch(`/notes/${id}`)
+    .then(response => response.json())
+    .then(note => {
+      noteId.value = note.id;
+      noteTitle.value = note.title;
+      noteContent.value = note.content;
+      deleteBtn.classList.remove('is-hidden');
+      mobileDeleteBtn.classList.remove('is-hidden');
+      checkForTodos(); // Check if we should switch to TODO mode
+    })
+    .catch(error => console.error('Error loading data:', error));
+};
+
     document.addEventListener('DOMContentLoaded', function() {
         const noteForm = document.getElementById('note-form');
         const noteId = document.getElementById('note-id');
@@ -220,5 +347,131 @@
             }, 500);
         });
     });
+
+
+// Modify the notes.html template to add this script section before the existing </script> tag
+
+// Add TODO functionality
+const toggleTodoStatus = (element, id) => {
+  const todoItem = element.closest('.todo-item');
+  const isDone = todoItem.classList.toggle('done');
+  
+  // Update the note content
+  const noteContent = document.getElementById('note-content');
+  const lines = noteContent.value.split('\n');
+  
+  // Find and update the TODO item in the content
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].includes(`[TODO:${id}]`)) {
+      if (isDone) {
+        lines[i] = lines[i].replace('[TODO:UNDONE]', '[TODO:DONE]');
+      } else {
+        lines[i] = lines[i].replace('[TODO:DONE]', '[TODO:UNDONE]');
+      }
+      break;
+    }
+  }
+  
+  noteContent.value = lines.join('\n');
+  
+  // Move the item to the appropriate section
+  const targetSection = isDone ? 
+    document.getElementById('done-items') : 
+    document.getElementById('undone-items');
+  
+  targetSection.appendChild(todoItem);
+};
+
+// Function to convert note to TODO list
+const convertToTodos = () => {
+  const noteContent = document.getElementById('note-content');
+  const lines = noteContent.value.split('\n');
+  let todoList = [];
+  let todoId = 1;
+  
+  // Convert each line to a TODO item
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (line && !line.includes('[TODO:')) {
+      todoList.push(`${line} [TODO:UNDONE]`);
+    } else if (line) {
+      todoList.push(line); // Keep existing TODO items
+    }
+  }
+  
+  noteContent.value = todoList.join('\n');
+  renderTodoList();
+};
+
+// Function to render the TODO list
+const renderTodoList = () => {
+  const todoPanel = document.getElementById('todo-panel');
+  const noteContent = document.getElementById('note-content');
+  const lines = noteContent.value.split('\n');
+  
+  // Clear existing TODO panel content
+  todoPanel.innerHTML = `
+    <div class="mb-4">
+      <h3 class="title is-6">UNDONE</h3>
+      <div id="undone-items"></div>
+    </div>
+    <div>
+      <h3 class="title is-6">DONE</h3>
+      <div id="done-items"></div>
+    </div>
+  `;
+  
+  const undoneItems = document.getElementById('undone-items');
+  const doneItems = document.getElementById('done-items');
+  
+  // Process each line
+  let todoId = 1;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+    
+    const isDone = line.includes('[TODO:DONE]');
+    const isUndone = line.includes('[TODO:UNDONE]');
+    
+    if (isDone || isUndone) {
+      // Extract the task text
+      const taskText = line.replace(/\[TODO:(DONE|UNDONE)\]/g, '').trim();
+      
+      // Create todo item
+      const todoItem = document.createElement('div');
+      todoItem.className = `todo-item box mb-2 p-2 is-flex is-align-items-center ${isDone ? 'done' : ''}`;
+      todoItem.innerHTML = `
+        <span class="icon mr-2">
+          <input type="checkbox" ${isDone ? 'checked' : ''} onclick="toggleTodoStatus(this, ${todoId})">
+        </span>
+        <span class="task-text ${isDone ? 'has-text-grey-light has-text-line-through' : ''}">${taskText}</span>
+      `;
+      
+      // Add to appropriate section
+      if (isDone) {
+        doneItems.appendChild(todoItem);
+      } else {
+        undoneItems.appendChild(todoItem);
+      }
+      
+      todoId++;
+    }
+  }
+  
+  // Show the TODO panel
+  document.getElementById('editor-view').classList.add('is-hidden');
+  document.getElementById('todo-view').classList.remove('is-hidden');
+};
+
+// Function to toggle back to editor view
+const switchToEditor = () => {
+  document.getElementById('editor-view').classList.remove('is-hidden');
+  document.getElementById('todo-view').classList.add('is-hidden');
+};
+
+
+
+
+
 </script>
 {% endblock %}
