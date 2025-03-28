@@ -34,7 +34,7 @@ def migrate_db():
                 )
             ''')
             db.commit()
-        except sqlite3.OperationalError as e    :
+        except sqlite3.OperationalError as e:
             print(f"Error creating users table: {e}")
     else:
         # Verifica e adiciona colunas faltantes na tabela users
@@ -49,17 +49,20 @@ def migrate_db():
     # Verifica e cria tabela de notas se não existir
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='notes'")
     if not cursor.fetchone():
-        cursor.execute('''
-            CREATE TABLE notes (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                title TEXT NOT NULL,
-                content TEXT NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                user_id INTEGER NOT NULL,
-                FOREIGN KEY (user_id) REFERENCES users (id)
-            )
-        ''')
+        try:
+            cursor.execute('''
+                CREATE TABLE notes (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    title TEXT NOT NULL,
+                    content TEXT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    user_id INTEGER NOT NULL,
+                    FOREIGN KEY (user_id) REFERENCES users (id)
+                )
+            ''')
+        except sqlite3.OperationalError as e:
+            print(f"Error creating notes table: {e}")
     else:
         # Verifica e adiciona colunas faltantes na tabela notes
         cursor.execute("PRAGMA table_info(notes)")
@@ -73,21 +76,24 @@ def migrate_db():
     # Verifica e cria tabela de todos se não existir
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='todos'")
     if not cursor.fetchone():
-        cursor.execute('''
-            CREATE TABLE todos (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                title TEXT NOT NULL,
-                description TEXT,
-                due_date DATE,
-                status TEXT NOT NULL DEFAULT 'pending',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                completed INTEGER default 0,
-                priority INTEGER default 0,
-                user_id INTEGER NOT NULL,
-                FOREIGN KEY (user_id) REFERENCES users (id)
-            )
-        ''')
+        try:
+            cursor.execute('''
+                CREATE TABLE todos (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    title TEXT NOT NULL,
+                    description TEXT,
+                    due_date DATE,
+                    status TEXT NOT NULL DEFAULT 'pending',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    completed INTEGER default 0,
+                    priority INTEGER default 0,
+                    user_id INTEGER NOT NULL,
+                    FOREIGN KEY (user_id) REFERENCES users (id)
+                )
+            ''')
+        except sqlite3.OperationalError as e:
+            print(f"Error creating todos table: {e}")
     else:
         # Verifica e adiciona colunas faltantes na tabela todos
         cursor.execute("PRAGMA table_info(todos)")
@@ -111,12 +117,16 @@ def migrate_db():
     # Verifica se existe o usuário admin
     cursor.execute('SELECT * FROM users WHERE username = ?', ('admin',))
     if not cursor.fetchone():
-        # Importa User aqui para evitar importação circular
-        from app.auth import User
-        cursor.execute('''
-            INSERT INTO users (username, password, role, is_active)
-            VALUES (?, ?, ?, ?)
-        ''', ('admin', User.hash_password('admin'), 'admin', 1))
+        try:
+            # Importa User aqui para evitar importação circular
+            from app.auth import User
+            cursor.execute('''
+                INSERT INTO users (username, password, role, is_active)
+                VALUES (?, ?, ?, ?)
+            ''', ('admin', User.hash_password('admin'), 'admin', 1))
+        except sqlite3.IntegrityError:
+            # Se o usuário já existe, ignora o erro
+            pass
     
     db.commit()
     db.close()

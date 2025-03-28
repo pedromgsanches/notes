@@ -35,9 +35,15 @@
                 <i class="fas fa-home"></i>
                 <span class="ml-2">Home</span>
             </a>
+
+            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasic">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
         </div>
 
-        <div class="navbar-menu">
+        <div id="navbarBasic" class="navbar-menu">
             <div class="navbar-start">
                 <a class="navbar-item" href="{{ url_for('notes') }}">
                     <span class="icon">
@@ -49,42 +55,33 @@
                     <span class="icon">
                         <i class="fas fa-tasks"></i>
                     </span>
-                    <span>ToDos</span>
+                    <span>Todos</span>
                 </a>
-                {% if current_user.role == 'admin' %}
-                <a class="navbar-item" href="{{ url_for('settings') }}">
-                    <span class="icon">
-                        <i class="fas fa-cog"></i>
-                    </span>
-                    <span>Settings</span>
-                </a>
-                {% endif %}
-
                 <a class="navbar-item" href="{{ url_for('help') }}">
                     <span class="icon">
                         <i class="fas fa-question-circle"></i>
                     </span>
                     <span>Help</span>
                 </a>
-
                 <a class="navbar-item" href="{{ url_for('about') }}">
                     <span class="icon">
                         <i class="fas fa-exclamation-circle"></i>
                     </span>
                     <span>About</span>
                 </a>
-
-
             </div>
 
             <div class="navbar-end">
                 <div class="navbar-item">
                     <div class="buttons">
-                        <button class="button is-light" id="darkModeToggle">
+                        {% if current_user.role == 'admin' %}
+                        <a class="button is-light" href="{{ url_for('settings') }}">
                             <span class="icon">
-                                <i class="fas fa-moon"></i>
+                                <i class="fas fa-cog"></i>
                             </span>
-                        </button>
+                            <span>Settings</span>
+                        </a>
+                        {% endif %}
                         <a class="button is-light" href="{{ url_for('logout') }}">
                             <span class="icon">
                                 <i class="fas fa-sign-out-alt"></i>
@@ -99,42 +96,37 @@
     {% endif %}
 
     <section class="section">
-        {% block content %}{% endblock %}
+        <div class="container">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="notification is-info">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            {% block content %}{% endblock %}
+        </div>
     </section>
 
     <script>
-        // Add is-active class to current menu item
-        document.addEventListener('DOMContentLoaded', function() {
-            const currentPath = window.location.pathname;
-            const menuItems = document.querySelectorAll('.navbar-item');
-            
-            menuItems.forEach(item => {
-                const link = item.getAttribute('href');
-                if (link && currentPath.startsWith(link)) {
-                    item.classList.add('is-active');
-                }
-            });
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get all "navbar-burger" elements
+            const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
 
-            // Dark mode functionality
-            const darkModeToggle = document.getElementById('darkModeToggle');
-            const isDarkMode = localStorage.getItem('darkMode') === 'true';
-            
-            if (isDarkMode) {
-                document.body.classList.add('dark-mode');
-                darkModeToggle.querySelector('i').classList.replace('fa-moon', 'fa-sun');
-            }
+            // Add a click event on each of them
+            $navbarBurgers.forEach(el => {
+                el.addEventListener('click', () => {
+                    // Get the target from the "data-target" attribute
+                    const target = el.dataset.target;
+                    const $target = document.getElementById(target);
 
-            darkModeToggle.addEventListener('click', () => {
-                document.body.classList.toggle('dark-mode');
-                const icon = darkModeToggle.querySelector('i');
-                
-                if (document.body.classList.contains('dark-mode')) {
-                    localStorage.setItem('darkMode', 'true');
-                    icon.classList.replace('fa-moon', 'fa-sun');
-                } else {
-                    localStorage.setItem('darkMode', 'false');
-                    icon.classList.replace('fa-sun', 'fa-moon');
-                }
+                    // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
+                    el.classList.toggle('is-active');
+                    $target.classList.toggle('is-active');
+                });
             });
         });
     </script>

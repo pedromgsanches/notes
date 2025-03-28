@@ -397,3 +397,31 @@ main {
 .dark-mode .menu-list a.is-active {
     background-color: #4d4d4d;
 }
+
+/* Estilos para o menu mobile */
+@media screen and (max-width: 1023px) {
+    .navbar-menu {
+        position: absolute;
+        left: 0;
+        right: 0;
+        background-color: white;
+        box-shadow: 0 8px 16px rgba(10,10,10,.1);
+        display: none;
+    }
+    
+    .navbar-menu.is-active {
+        display: block;
+    }
+    
+    .navbar-burger {
+        display: block;
+    }
+    
+    .navbar-item {
+        padding: 1rem;
+    }
+    
+    .navbar-item .icon {
+        margin-right: 0.5rem;
+    }
+}
