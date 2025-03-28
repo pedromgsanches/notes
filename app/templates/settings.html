@@ -1,41 +1,235 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="columns is-centered">
-    <div class="column is-half-tablet is-one-third-desktop">
-        <div class="box">
-            <h2 class="title is-4 has-text-centered">Settings</h2>
+<style>
+    .tab-content > .tab-pane {
+        display: none;
+    }
+    .tab-content > .is-active {
+        display: block;
+    }
+</style>
+
+<div class="container">
+    <div class="box">
+        <h1 class="title is-4">Settings</h1>
+        
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="notification is-info">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <div class="tabs">
+            <ul>
+                <li class="is-active" data-tab="account">
+                    <a>
+                        <span class="icon"><i class="fas fa-user"></i></span>
+                        <span>My Account</span>
+                    </a>
+                </li>
+                {% if current_user.role == 'admin' %}
+                <li data-tab="users">
+                    <a>
+                        <span class="icon"><i class="fas fa-users"></i></span>
+                        <span>Manage Users</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+        
+        <div class="tab-content">
+            <!-- Minha Conta -->
+            <div class="tab-pane is-active" id="account">
+                <form method="post" action="{{ url_for('settings') }}">
+                    <div class="field">
+                        <label class="label">Change Password</label>
+                        <div class="field">
+                            <div class="control">
+                                <input class="input" type="password" name="current_password" placeholder="Current Password" required>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                <input class="input" type="password" name="new_password" placeholder="New Password" required>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                <button type="submit" class="button is-primary">
+                                    <span class="icon">
+                                        <i class="fas fa-save"></i>
+                                    </span>
+                                    <span>Save</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
             
-            <form method="post" action="{{ url_for('settings') }}">
-                <div class="field">
-                    <label class="label" for="current_password">Current password</label>
-                    <div class="control has-icons-left">
-                        <input class="input" type="password" id="current_password" name="current_password" required>
-                        <span class="icon is-small is-left">
-                            <i class="fas fa-lock"></i>
-                        </span>
+            <!-- Gerenciar Usuários (apenas para admin) -->
+            {% if current_user.role == 'admin' %}
+            <div class="tab-pane" id="users">
+                <form method="post" action="{{ url_for('new_user') }}" class="mb-4">
+                    <div class="field">
+                        <label class="label">Novo Usuário</label>
+                        <div class="field-body">
+                            <div class="field">
+                                <div class="control">
+                                    <input class="input" type="text" name="username" placeholder="Username" required>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="control">
+                                    <input class="input" type="password" name="password" placeholder="Password" required>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="control">
+                                    <div class="select">
+                                        <select name="role">
+                                            <option value="user">User</option>
+                                            <option value="admin">Administrator</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="control">
+                                    <button type="submit" class="button is-primary">
+                                        <span class="icon">
+                                            <i class="fas fa-plus"></i>
+                                        </span>
+                                        <span>Create</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                </form>
                 
-                <div class="field">
-                    <label class="label" for="new_password">New password</label>
-                    <div class="control has-icons-left">
-                        <input class="input" type="password" id="new_password" name="new_password" required>
-                        <span class="icon is-small is-left">
-                            <i class="fas fa-key"></i>
-                        </span>
-                    </div>
-                </div>
-                
-                <div class="field">
-                    <div class="control">
-                        <button type="submit" class="button is-primary is-fullwidth">
-                            Change password
-                        </button>
-                    </div>
-                </div>
-            </form>
+                <table class="table is-fullwidth">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ user[1] }}</td>
+                            <td>
+                                <span class="tag {% if user[2] == 'admin' %}is-danger{% else %}is-info{% endif %}">
+                                    {{ user[2] }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="tag {% if user[3] %}is-success{% else %}is-danger{% endif %}">
+                                    {{ 'Ativo' if user[3] else 'Inativo' }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="buttons are-small">
+                                    <form method="post" action="{{ url_for('toggle_user_active', user_id=user[0]) }}" style="display: inline;">
+                                        <button type="submit" class="button {% if user[3] %}is-warning{% else %}is-success{% endif %}">
+                                            <span class="icon">
+                                                <i class="fas {% if user[3] %}fa-ban{% else %}fa-check{% endif %}"></i>
+                                            </span>
+                                        </button>
+                                    </form>
+                                    
+                                    <button class="button is-info" onclick="showChangePasswordModal({{ user[0] }}, '{{ user[1] }}')">
+                                        <span class="icon">
+                                            <i class="fas fa-key"></i>
+                                        </span>
+                                    </button>
+                                    
+                                    <form method="post" action="{{ url_for('delete_user', user_id=user[0]) }}" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja remover este usuário?');">
+                                        <button type="submit" class="button is-danger">
+                                            <span class="icon">
+                                                <i class="fas fa-trash"></i>
+                                            </span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
+
+<!-- Modal para alterar senha -->
+<div id="changePasswordModal" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">Change Password</p>
+        </header>
+        <section class="modal-card-body">
+            <form id="changePasswordForm" method="post">
+                <div class="field">
+                    <label class="label">New Password</label>
+                    <div class="control">
+                        <input class="input" type="password" name="new_password" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="control">
+                        <button type="submit" class="button is-primary">Save</button>
+                        <button type="button" class="button" onclick="closeChangePasswordModal()">Cancel</button>
+                    </div>
+                </div>
+            </form>
+        </section>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const tabs = document.querySelectorAll('.tabs li');
+    
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const targetTab = tab.getAttribute('data-tab');
+            
+            // Remove active class from all tabs and panes
+            tabs.forEach(t => t.classList.remove('is-active'));
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('is-active'));
+            
+            // Add active class to clicked tab and corresponding pane
+            tab.classList.add('is-active');
+            document.getElementById(targetTab).classList.add('is-active');
+        });
+    });
+});
+
+function showChangePasswordModal(userId, username) {
+    const modal = document.getElementById('changePasswordModal');
+    const form = document.getElementById('changePasswordForm');
+    form.action = `/users/${userId}/change_password`;
+    modal.classList.add('is-active');
+}
+
+function closeChangePasswordModal() {
+    const modal = document.getElementById('changePasswordModal');
+    modal.classList.remove('is-active');
+}
+
+// Fechar modal ao clicar fora
+document.querySelector('.modal-background').addEventListener('click', closeChangePasswordModal);
+</script>
 {% endblock %}

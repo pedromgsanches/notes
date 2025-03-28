@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Help{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="box">
+        <h1 class="title is-3">Markdown Help</h1>
+        
+        <div class="content">
+            <p>Markdown is a simple formatting language that allows you to create formatted text easily. Here are the main elements you can use:</p>
+            
+            <h2 class="title is-4 mt-4">Headers</h2>
+            <pre><code># Main Header
+## Subheader
+### Smaller Header
+#### Very Small Header</code></pre>
+            
+            <h2 class="title is-4 mt-4">Emphasis</h2>
+            <pre><code>*italic text* or _italic text_
+**bold text** or __bold text__
+~~strikethrough text~~</code></pre>
+            
+            <h2 class="title is-4 mt-4">Lists</h2>
+            <pre><code>Unordered list:
+* Item 1
+* Item 2
+  * Subitem 2.1
+  * Subitem 2.2
+
+Ordered list:
+1. First item
+2. Second item
+3. Third item</code></pre>
+            
+            <h2 class="title is-4 mt-4">Links and Images</h2>
+            <pre><code>[link text](URL)
+![image alt text](image URL)</code></pre>
+            
+            <h2 class="title is-4 mt-4">Quotes</h2>
+            <pre><code>> This is a quote.
+>> It can have multiple lines.</code></pre>
+            
+            <h2 class="title is-4 mt-4">Code</h2>
+            <pre><code>`inline code`
+
+```python
+def hello_world():
+    print("Hello, world!")
+```</code></pre>
+            
+            <h2 class="title is-4 mt-4">Tables</h2>
+            <pre><code>| Header 1 | Header 2 |
+|----------|----------|
+| Cell 1   | Cell 2   |
+| Cell 3   | Cell 4   |</code></pre>
+            
+            <h2 class="title is-4 mt-4">Horizontal Rule</h2>
+            <pre><code>---
+or
+***
+or
+___</code></pre>
+            
+            <div class="notification is-info mt-4">
+                <p><strong>Tip:</strong> You can use the "Preview" button to see how your note will look before saving.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+    .note-item {
+        cursor: pointer;
+    }
+    .note-item:hover {
+        background-color: #f5f5f5;
+    }
+    .content-preview {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    /* Fixed navbar */
+    .navbar.is-fixed-top {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 30;
+    }
+    
+    body {
+        padding-top: 3.25rem;
+    }
+    
+    /* Dark mode styles */
+    body.dark-mode {
+        background-color: #121212;
+        color: #e0e0e0;
+    }
+    
+    body.dark-mode .navbar.is-primary {
+        background-color: #2b2b2b !important;
+    }
+    
+    body.dark-mode .box {
+        background-color: #2b2b2b;
+        color: #e0e0e0;
+    }
+    
+    body.dark-mode .note-item:hover {
+        background-color: #3b3b3b;
+    }
+    
+    body.dark-mode .input, 
+    body.dark-mode .textarea {
+        background-color: #3b3b3b;
+        color: #e0e0e0;
+        border-color: #555;
+    }
+    
+    body.dark-mode .title,
+    body.dark-mode .label {
+        color: #e0e0e0;
+    }
+    
+    body.dark-mode .button.is-light {
+        background-color: #3b3b3b;
+        color: #e0e0e0;
+    }
+    
+    body.dark-mode .content-preview {
+        color: #aaa;
+    }
+</style>
+</head>
+<body>
+    {% if current_user.is_authenticated %}
+    <nav class="navbar is-primary is-fixed-top" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <h1 class="navbar-item is-size-4">Notes</h1>
+            
+            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navMenu">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+        </div>
+        
+        <div id="navMenu" class="navbar-menu">
+            <div class="navbar-start">
+                <a href="{{ url_for('notes') }}" class="navbar-item">
+                    <span class="icon"><i class="fas fa-sticky-note"></i></span>
+                    <span>My Notes</span>
+                </a>
+                <a href="{{ url_for('settings') }}" class="navbar-item">
+                    <span class="icon"><i class="fas fa-cog"></i></span>
+                    <span>Settings</span>
+                </a>
+                <a href="{{ url_for('about') }}" class="navbar-item">
+                    <span class="icon"><i class="fas fa-info-circle"></i></span>
+                    <span>About</span>
+                </a>
+            </div>
+            
+            <div class="navbar-end">
+                <div class="navbar-item">
+                    <button id="dark-mode-toggle" class="button is-light mr-2">
+                        <span class="icon">
+                            <i id="dark-mode-icon" class="fas fa-moon"></i>
+                        </span>
+                    </button>
+                    <a href="{{ url_for('logout') }}" class="button is-light">
+                        <span class="icon"><i class="fas fa-sign-out-alt"></i></span>
+                        <span>Logout</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+
+    <section class="section">
+        <div class="container">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="notification is-danger">
+                            <button class="delete"></button>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Navbar burger functionality
+            const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+            if ($navbarBurgers.length > 0) {
+                $navbarBurgers.forEach(el => {
+                    el.addEventListener('click', () => {
+                        const target = el.dataset.target;
+                        const $target = document.getElementById(target);
+                        el.classList.toggle('is-active');
+                        $target.classList.toggle('is-active');
+                    });
+                });
+            }
+            
+            // Close notifications
+            const $deleteButtons = Array.prototype.slice.call(document.querySelectorAll('.notification .delete'), 0);
+            $deleteButtons.forEach($delete => {
+                const $notification = $delete.parentNode;
+                $delete.addEventListener('click', () => {
+                    $notification.parentNode.removeChild($notification);
+                });
+            });
+            
+            // Dark mode toggle
+            const darkModeToggle = document.getElementById('dark-mode-toggle');
+            if (darkModeToggle) {
+                darkModeToggle.addEventListener('click', function() {
+                    document.body.classList.toggle('dark-mode');
+                    const isDark = document.body.classList.contains('dark-mode');
+                    localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
+                    
+                    // Update icon
+                    const darkModeIcon = document.getElementById('dark-mode-icon');
+                    darkModeIcon.classList.toggle('fa-moon');
+                    darkModeIcon.classList.toggle('fa-sun');
+                });
+                
+                // Initialize dark mode based on localStorage
+                const darkMode = localStorage.getItem('darkMode') === 'enabled';
+                if (darkMode) {
+                    document.body.classList.add('dark-mode');
+                    const darkModeIcon = document.getElementById('dark-mode-icon');
+                    darkModeIcon.classList.remove('fa-moon');
+                    darkModeIcon.classList.add('fa-sun');
+                }
+            }
+        });
+    </script>
+    
+</body>
+</html>
