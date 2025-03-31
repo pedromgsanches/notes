@@ -25,6 +25,10 @@
             color: #666;
             font-size: 0.9em;
         }
+        .navbar-brand img {
+            max-height: 2.5rem;
+            margin-right: 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -32,8 +36,7 @@
     <nav class="navbar is-light" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
             <a class="navbar-item" href="{{ url_for('notes') }}">
-                <i class="fas fa-home"></i>
-                <span class="ml-2">Home</span>
+                <img src="{{ url_for('static', filename='logo_tiny.png') }}" alt="Notes Logo">
             </a>
 
             <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasic">

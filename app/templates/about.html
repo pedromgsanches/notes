@@ -4,19 +4,23 @@
 <div class="columns is-centered">
     <div class="column is-half-tablet is-one-third-desktop">
         <div class="box">
+            <div class="has-text-centered mb-5">
+                <img src="{{ url_for('static', filename='logo_small.png') }}" alt="Notes Logo" style="max-height: 150px;">
+            </div>
+            
             <h2 class="title is-4 has-text-centered">About</h2>
             
             <div class="content">
-                <p>Simple selfhosted notes app.</p>
+                <p class="has-text-centered">Simple selfhosted notes app.</p>
                 
-                <p>
+                <p class="has-text-centered">
                     <strong>GitHub:</strong>
                     <a href="https://github.com/pedromgsanches/notes" target="_blank">
                         https://github.com/pedromgsanches/notes
                     </a>
                 </p>
                 
-                <p>Developed using Flask and SQLite.</p>
+                <p class="has-text-centered">Developed using Flask and SQLite.</p>
             </div>
         </div>
     </div>
