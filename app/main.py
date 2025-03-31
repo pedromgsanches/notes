@@ -107,14 +107,14 @@ def get_note(id):
     return {
         'id': note[0],
         'title': note[1],
-        'content': note[2]
+        'content': note[2].replace('\n', '\r\n')  # Converte para o formato do navegador
     }
 
 @app.route('/notes/new', methods=['POST'])
 @login_required
 def new_note():
     title = request.form['title']
-    content = request.form['content']
+    content = request.form['content'].replace('\r\n', '\n')  # Normaliza as quebras de linha
     
     conn = get_db()
     conn.execute('''
@@ -130,7 +130,7 @@ def new_note():
 @login_required
 def update_note(id):
     title = request.form['title']
-    content = request.form['content']
+    content = request.form['content'].replace('\r\n', '\n')  # Normaliza as quebras de linha
     
     conn = get_db()
     conn.execute('''
