@@ -3,6 +3,18 @@
 {% block title %}Notes{% endblock %}
 
 {% block content %}
+<style>
+    .note-content {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+    
+    #preview-text {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+</style>
+
 <div class="columns">
     <div class="column is-one-third">
         <div class="box">
@@ -32,7 +44,7 @@
                     {% for note in notes %}
                         <div class="note-item box mb-2 p-3" data-id="{{ note[0] }}">
                             <h3 class="is-size-6 has-text-weight-bold">{{ note[1] }}</h3>
-                            <p class="content-preview">{{ note[2]|truncate(50) }}</p>
+                            <p class="content-preview note-content">{{ note[2]|truncate(50) }}</p>
                         </div>
                     {% endfor %}
                 {% else %}
@@ -96,7 +108,7 @@
             
             <div id="preview-content" class="content is-hidden">
                 <h1 id="preview-title" class="title is-3"></h1>
-                <div id="preview-text"></div>
+                <div id="preview-text" class="note-content"></div>
             </div>
             
             <div class="is-hidden-tablet has-text-centered mt-3">
@@ -160,8 +172,11 @@
         }
         
         function updatePreview() {
-            previewTitle.textContent = noteTitle.value || 'No title';
-            previewText.innerHTML = marked.parse(noteContent.value || '');
+            const title = noteTitle.value;
+            const content = noteContent.value;
+            
+            previewTitle.textContent = title;
+            previewText.innerHTML = marked.parse(content);
         }
         
         newNoteBtn.addEventListener('click', function() {
@@ -214,7 +229,7 @@
                 titleField.name = 'title';
                 titleField.value = noteTitle.value;
                 
-                const contentField = document.createElement('input');
+                const contentField = document.createElement('textarea');
                 contentField.name = 'content';
                 contentField.value = noteContent.value;
                 
@@ -232,7 +247,7 @@
                 titleField.name = 'title';
                 titleField.value = noteTitle.value;
                 
-                const contentField = document.createElement('input');
+                const contentField = document.createElement('textarea');
                 contentField.name = 'content';
                 contentField.value = noteContent.value;
                 
