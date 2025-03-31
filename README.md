@@ -1,4 +1,4 @@
-![Alt text](logo.png?raw=true "print")
+![Alt text](logo_small.png?raw=true "print")
 
 ### Readme
 - Simple note application created with claude.ai and github integration.
