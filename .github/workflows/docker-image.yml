@@ -10,7 +10,7 @@ jobs:
 
   build:
 
-    runs-on: python:latest
+    runs-on: python:3.9.22-slim
 
     steps:
     - uses: actions/checkout@v4
